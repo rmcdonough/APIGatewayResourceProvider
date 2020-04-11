@@ -1,0 +1,10 @@
+{
+    "typeName": "SLF::APIGateway::Private",
+    "language": "python37",
+    "runtime": "python3.7",
+    "entrypoint": "slf_apigateway_private.handlers.resource",
+    "testEntrypoint": "slf_apigateway_private.handlers.test_entrypoint",
+    "settings": {
+        "use_docker": true
+    }
+}
