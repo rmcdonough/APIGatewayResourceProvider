@@ -1,104 +1,55 @@
 {
     "typeName": "SLF::APIGateway::Private",
-    "description": "An example resource schema demonstrating some basic constructs and validation rules.",
-    "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
-    "definitions": {
-        "InitechDateFormat": {
-            "$comment": "Use the `definitions` block to provide shared resource property schemas",
-            "type": "string",
-            "format": "date-time"
-        },
-        "Memo": {
-            "type": "object",
-            "properties": {
-                "Heading": {
-                    "type": "string"
-                },
-                "Body": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
-        }
-    },
+    "description": "Create private-only API Gateway objects",
     "properties": {
-        "TPSCode": {
-            "description": "A TPS Code is automatically generated on creation and assigned as the unique identifier.",
+        "Name": {
+            "description": "Name of API Gateway",
             "type": "string",
-            "pattern": "^[A-Z]{3,5}[0-9]{8}-[0-9]{4}$"
-        },
-        "Title": {
-            "description": "The title of the TPS report is a mandatory element.",
-            "type": "string",
-            "minLength": 20,
+            "minLength": 3,
             "maxLength": 250
         },
-        "CoverSheetIncluded": {
-            "description": "Required for all TPS Reports submitted after 2/19/1999",
-            "type": "boolean"
-        },
-        "DueDate": {
-            "$ref": "#/definitions/InitechDateFormat"
-        },
-        "ApprovalDate": {
-            "$ref": "#/definitions/InitechDateFormat"
-        },
-        "Memo": {
-            "$ref": "#/definitions/Memo"
-        },
-        "SecondCopyOfMemo": {
-            "description": "In case you didn't get the first one.",
-            "$ref": "#/definitions/Memo"
-        },
-        "TestCode": {
+        "Description": {
+            "description": "Description of API Gateway",
             "type": "string",
-            "enum": [
-                "NOT_STARTED",
-                "CANCELLED"
-            ]
-        },
-        "Authors": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
+            "minLength": 3,
+            "maxLength": 250
         }
     },
     "additionalProperties": false,
     "required": [
-        "TestCode",
-        "Title"
+        "Name",
+        "Description"
     ],
     "readOnlyProperties": [
-        "/properties/TPSCode"
+        "/properties/restApiId"
+    ],
+    "createOnlyProperties": [
+        "/properties/restApiId"
     ],
     "primaryIdentifier": [
-        "/properties/TPSCode"
+        "/properties/Name"
     ],
     "handlers": {
         "create": {
             "permissions": [
-                "initech:CreateReport"
+                "apigateway:POST",
+                "apigateway:GET"
             ]
         },
         "read": {
             "permissions": [
-                "initech:DescribeReport"
+                "apigateway:GET"
             ]
         },
         "update": {
             "permissions": [
-                "initech:UpdateReport"
+                "apigateway:POST",
+                "apigateway:GET"
             ]
         },
         "delete": {
             "permissions": [
-                "initech:DeleteReport"
-            ]
-        },
-        "list": {
-            "permissions": [
-                "initech:ListReports"
+                "apigateway:DELETE"
             ]
         }
     }

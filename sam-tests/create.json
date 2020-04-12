@@ -1,0 +1,16 @@
+{
+    "credentials": {
+        "accessKeyId": "ASIA5JHOHJY7CWUEM5ED",
+        "secretAccessKey": "NnZDLBeEuvm9TSSqeKsb3wj3yt2CQRB7ydhAFplt",
+        "sessionToken": "FwoGZXIvYXdzEEAaDDKjGjIWfO2n5WbMeSKGAfiuMfxEMd39WO8L97w7Erg+2VpVsqNz0l176obU9oJCUZ6D+C371DXpPyKS+5zoSdf/O1+iojCKkNk7S7ZwiFhJkohK2AfMqRMpPg8RNiCNxIncFtZ4f+EIGiIIT8Ca6ISC4pKNEsx8rfQhZZ/DI+M5qH7KWtRkIzhgYuH47U5ZE8AK2m97KLnEzPQFMigdJPOFuftTeJoVEHrUDSI80htQRWAc2Pgme4XvmGXiMBWRx2JX7CQN"
+    },
+    "action": "CREATE",
+    "request": {
+        "clientRequestToken": "4b90a7e4-b790-456b-a937-0cfdfa211dfe",
+        "desiredResourceState": {
+            "Name": "test456",
+            "Description": "omg omg omg bbqlulz"
+        }
+    },
+    "callbackContext": null
+}

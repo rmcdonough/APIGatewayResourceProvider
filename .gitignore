@@ -125,3 +125,7 @@ dmypy.json
 
 # Pycharm
 .idea
+
+# other artifacts
+slf-apigateway-private.zip
+
