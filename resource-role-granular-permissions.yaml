@@ -23,11 +23,21 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                - "apigateway:DELETE"
-                - "apigateway:GET"
-                - "apigateway:POST"
-                - "apigateway:PUT"
-                Resource: "*"
+                  - "apigateway:GET"
+                  - "apigateway:POST"
+                  - "apigateway:PUT"
+                Resource:
+                  - "arn:aws:apigateway:us-west-2::/restapis"
+                  - "arn:aws:apigateway:us-west-2::/tags/*"
+              - Effect: Allow
+                Action:
+                  - "apigateway:DELETE"
+                  - "apigateway:GET"
+                Resource:
+                  - "arn:aws:apigateway:us-west-2::/restapis/*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/CreatedBy": "SLF::APIGateway::Private"
 Outputs:
   ExecutionRoleArn:
     Value:

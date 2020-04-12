@@ -8,8 +8,7 @@
     "request": {
         "clientRequestToken": "4b90a7e4-b790-456b-a937-0cfdfa211dfe",
         "desiredResourceState": {
-            "Name": "test4",
-            "Description": "omg omg omg bbqlulz"
+            "restApiId": "zw4ax39qag"
         }
     },
     "callbackContext": null

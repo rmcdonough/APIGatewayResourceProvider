@@ -24,11 +24,9 @@ test_entrypoint = resource.test_entrypoint
 class APIGateway(object):
     def __init__(self, session):
         self.client = session.client('apigateway')
-
         #
         # todo: make paginator safe
         #
-
         self.apis = []
         apis = self.client.get_rest_apis()
         for api_id in apis['items']:
@@ -46,6 +44,7 @@ class APIGateway(object):
         """
         # Throw an error if we are trying to reuse an existing name
         if name in self.apis:
+            # todo: this can be handled much cleaner
             raise NameError
         response = self.client.create_rest_api(
             name=name,
@@ -62,9 +61,9 @@ class APIGateway(object):
         response = self.client.delete_rest_api(restApiId=name)
         return response
 
-    def get_api(self, name):
+    def get_api(self, restApiId):
         """Returns information about an API"""
-        response = self.client.get_rest_api(restApiId=name)
+        response = self.client.get_rest_api(restApiId=restApiId)
         return response
 
 
@@ -73,15 +72,13 @@ def create_handler(session: Optional[SessionProxy],
                    request: ResourceHandlerRequest,
                    callback_context: MutableMapping[str, Any]) -> ProgressEvent:
     model = request.desiredResourceState
-    progress: ProgressEvent = ProgressEvent(status=OperationStatus.IN_PROGRESS, resourceModel=model)
     try:
         api = APIGateway(session)
         response = api.create_api(model.Name, model.Description)
-        progress.status = OperationStatus.SUCCESS
-        progress.resourceModel = {'restApiId': response['id'], 'Response': response}
+        model.restApiId = response['id']
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return progress
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message='CreateOK')
 
 
 @resource.handler(Action.UPDATE)
@@ -89,16 +86,10 @@ def update_handler(session: Optional[SessionProxy],
                    request: ResourceHandlerRequest,
                    callback_context: MutableMapping[str, Any]) -> ProgressEvent:
     #
-    # todo: the update handler is just a stub for now
+    # todo: this is a stub that reflects back the restApiId of the calling request
     #
-
     model = request.desiredResourceState
-    progress: ProgressEvent = ProgressEvent(
-        status=OperationStatus.IN_PROGRESS,
-        resourceModel=model,
-    )
-    progress.status = OperationStatus.SUCCESS
-    return progress
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)
 
 
 @resource.handler(Action.DELETE)
@@ -106,18 +97,13 @@ def delete_handler(session: Optional[SessionProxy],
                    request: ResourceHandlerRequest,
                    callback_context: MutableMapping[str, Any]) -> ProgressEvent:
     model = request.desiredResourceState
-    progress: ProgressEvent = ProgressEvent(
-        status=OperationStatus.IN_PROGRESS,
-        resourceModel=model,
-    )
     try:
         api = APIGateway(session)
-        response = api.delete_api(model.Name)
-        progress.status = OperationStatus.SUCCESS
-        progress.resourceModel = {'Response': response}
+        response = api.delete_api(model.restApiId)
+        model.message = response
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return progress
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)
 
 
 @resource.handler(Action.READ)
@@ -125,28 +111,10 @@ def read_handler(session: Optional[SessionProxy],
                  request: ResourceHandlerRequest,
                  callback_context: MutableMapping[str, Any]) -> ProgressEvent:
     model = request.desiredResourceState
-    progress: ProgressEvent = ProgressEvent(
-        status=OperationStatus.IN_PROGRESS,
-        resourceModel=model,
-    )
     try:
         api = APIGateway(session)
-        response = api.get_api(model.Name)
-        progress.status = OperationStatus.SUCCESS
-        progress.resourceModel = {'Response': response}
+        response = api.get_api(model.restApiId)
+        model.message = response
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return progress
-
-#
-# @resource.handler(Action.LIST)
-# def list_handler(
-#     session: Optional[SessionProxy],
-#     request: ResourceHandlerRequest,
-#     callback_context: MutableMapping[str, Any],
-# ) -> ProgressEvent:
-#     # TODO: put code here
-#     return ProgressEvent(
-#         status=OperationStatus.SUCCESS,
-#         resourceModels=[],
-#     )
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)

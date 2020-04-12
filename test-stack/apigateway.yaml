@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Test API Gateway stack
+Resources:
+  APIGateway:
+    Type: "SLF::APIGateway::Private"
+    Properties:
+      Description: Test API
+      Name: TestAPI

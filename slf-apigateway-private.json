@@ -13,6 +13,12 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 250
+        },
+        "restApiId": {
+            "description": "Unique ID for REST API",
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 250
         }
     },
     "additionalProperties": false,
@@ -24,16 +30,18 @@
         "/properties/restApiId"
     ],
     "createOnlyProperties": [
-        "/properties/restApiId"
+        "/properties/Name",
+        "/properties/Description"
     ],
     "primaryIdentifier": [
-        "/properties/Name"
+        "/properties/restApiId"
     ],
     "handlers": {
         "create": {
             "permissions": [
                 "apigateway:POST",
-                "apigateway:GET"
+                "apigateway:GET",
+                "apigateway:PUT"
             ]
         },
         "read": {
