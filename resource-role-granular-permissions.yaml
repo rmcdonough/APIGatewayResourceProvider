@@ -21,14 +21,21 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
+
               - Effect: Allow
                 Action:
                   - "apigateway:GET"
                   - "apigateway:POST"
-                  - "apigateway:PUT"
                 Resource:
                   - "arn:aws:apigateway:us-west-2::/restapis"
+              - Effect: Allow
+                Action:
+                  - "apigateway:PUT"
+                Resource:
                   - "arn:aws:apigateway:us-west-2::/tags/*"
+                Condition:
+                  StringEquals:
+                    "aws:RequestTag/CreatedBy": "SLF::APIGateway::Private"
               - Effect: Allow
                 Action:
                   - "apigateway:DELETE"

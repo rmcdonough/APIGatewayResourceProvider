@@ -5,9 +5,11 @@ Parameters:
   RestApiId:
     Type: String
     Description: ID for the target API Gateway
+    Default: 1rhstwel3f
   RootResourceId:
     Type: String
     Description: ID for the root resource identifier
+    Default: o8h6vev1mg
 
 Resources:
   MockMethod:
