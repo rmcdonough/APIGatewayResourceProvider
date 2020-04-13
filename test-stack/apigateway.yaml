@@ -1,8 +1,27 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Test API Gateway stack
+
+Parameters:
+  APIName:
+    Type: String
+    Description: Name of private API Gateway being created
+  APIDescription:
+    Type: String
+    Description: Friendly description of this API
+
 Resources:
   APIGateway:
     Type: "SLF::APIGateway::Private"
     Properties:
-      Description: Test API
-      Name: TestAPI
+      Description: !Ref APIDescription
+      Name: !Ref APIName
+
+#  MockMethod:
+#    Type: 'AWS::ApiGateway::Method'
+#    Properties:
+#      RestApiId: !Ref APIGateway
+#      ResourceId: !GetAtt APIGateway.RootResourceId
+#      HttpMethod: GET
+#      AuthorizationType: NONE
+#      Integration:
+#        Type: MOCK

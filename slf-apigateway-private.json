@@ -16,9 +16,11 @@
         },
         "restApiId": {
             "description": "Unique ID for REST API",
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 250
+            "type": "string"
+        },
+        "RootResourceId": {
+            "description": "ID for the root resource (i.e. /)",
+            "type": "string"
         }
     },
     "additionalProperties": false,
@@ -27,11 +29,12 @@
         "Description"
     ],
     "readOnlyProperties": [
-        "/properties/restApiId"
+        "/properties/RootResourceId"
     ],
     "createOnlyProperties": [
         "/properties/Name",
-        "/properties/Description"
+        "/properties/Description",
+        "/properties/RootResourceId"
     ],
     "primaryIdentifier": [
         "/properties/restApiId"
@@ -46,12 +49,6 @@
         },
         "read": {
             "permissions": [
-                "apigateway:GET"
-            ]
-        },
-        "update": {
-            "permissions": [
-                "apigateway:POST",
                 "apigateway:GET"
             ]
         },

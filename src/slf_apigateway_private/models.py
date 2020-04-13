@@ -42,6 +42,7 @@ class ResourceModel(BaseModel):
     Name: Optional[str]
     Description: Optional[str]
     restApiId: Optional[str]
+    RootResourceId: Optional[str]
 
     @classmethod
     def _deserialize(
@@ -56,6 +57,7 @@ class ResourceModel(BaseModel):
             Name=json_data.get("Name"),
             Description=json_data.get("Description"),
             restApiId=json_data.get("restApiId"),
+            RootResourceId=json_data.get("RootResourceId"),
         )
 
 

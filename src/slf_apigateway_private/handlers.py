@@ -24,9 +24,7 @@ test_entrypoint = resource.test_entrypoint
 class APIGateway(object):
     def __init__(self, session):
         self.client = session.client('apigateway')
-        #
         # todo: make paginator safe
-        #
         self.apis = []
         apis = self.client.get_rest_apis()
         for api_id in apis['items']:
@@ -37,24 +35,26 @@ class APIGateway(object):
         return self.apis
 
     def create_api(self, name, description):
-        """
-        Create a new API Gateway
-
-        The endpoint configuration is hard coded to be PRIVATE
-        """
+        """Create a new private API Gateway"""
         # Throw an error if we are trying to reuse an existing name
         if name in self.apis:
-            # todo: this can be handled much cleaner
+            # todo: this can be handled much cleaner with a better error message indicating a duplicate
             raise NameError
-        response = self.client.create_rest_api(
+
+        # First we create the new API
+        create_response = self.client.create_rest_api(
             name=name,
             description=description,
             endpointConfiguration={'types': ['PRIVATE']},
-            tags={
-                'CreatedBy': 'SLF::APIGateway::Private'
-            }
+            tags={'CreatedBy': TYPE_NAME}
         )
-        return response
+
+        # And now we get the ID for the root resource (/)
+        resource_response = self.client.get_resources(restApiId=create_response['id'])
+        return {
+            'restApiId': create_response['id'],
+            'RootResourceId': resource_response['items'][0]['id']
+        }
 
     def delete_api(self, name):
         """Deletes an API Gateway"""
@@ -75,21 +75,12 @@ def create_handler(session: Optional[SessionProxy],
     try:
         api = APIGateway(session)
         response = api.create_api(model.Name, model.Description)
-        model.restApiId = response['id']
+        model.restApiId = response['restApiId']
+        model.RootResourceId = response['RootResourceId']
+        logging.warning(str(model))
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message='CreateOK')
-
-
-@resource.handler(Action.UPDATE)
-def update_handler(session: Optional[SessionProxy],
-                   request: ResourceHandlerRequest,
-                   callback_context: MutableMapping[str, Any]) -> ProgressEvent:
-    #
-    # todo: this is a stub that reflects back the restApiId of the calling request
-    #
-    model = request.desiredResourceState
-    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message=str(model))
 
 
 @resource.handler(Action.DELETE)
@@ -103,7 +94,7 @@ def delete_handler(session: Optional[SessionProxy],
         model.message = response
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message='DeleteOK')
 
 
 @resource.handler(Action.READ)
@@ -117,4 +108,4 @@ def read_handler(session: Optional[SessionProxy],
         model.message = response
     except TypeError as e:
         raise exceptions.InternalFailure(f"was not expecting type {e}")
-    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model)
+    return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message='ReadOK')

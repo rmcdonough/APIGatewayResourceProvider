@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Adds example methods to the previously provisioned API Gateway
+
+Parameters:
+  RestApiId:
+    Type: String
+    Description: ID for the target API Gateway
+  RootResourceId:
+    Type: String
+    Description: ID for the root resource identifier
+
+Resources:
+  MockMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref RestApiId
+      ResourceId: !Ref RootResourceId
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
