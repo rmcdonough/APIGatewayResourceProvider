@@ -43,17 +43,20 @@
             "permissions": [
                 "apigateway:POST",
                 "apigateway:GET",
-                "apigateway:PUT"
+                "apigateway:PUT",
+                "cloudwatch:PutMetricData"
             ]
         },
         "read": {
             "permissions": [
-                "apigateway:GET"
+                "apigateway:GET",
+                "cloudwatch:PutMetricData"
             ]
         },
         "delete": {
             "permissions": [
-                "apigateway:DELETE"
+                "apigateway:DELETE",
+                "cloudwatch:PutMetricData"
             ]
         }
     }

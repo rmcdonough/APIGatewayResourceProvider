@@ -32,7 +32,6 @@ class APIGateway(object):
 
     def create_api(self, name, description):
         """Create a new private API Gateway"""
-        # Throw an error if we are trying to reuse an existing name
         if name in self.apis:
             # todo: this can be handled much cleaner with a better error message indicating a duplicate
             raise NameError
