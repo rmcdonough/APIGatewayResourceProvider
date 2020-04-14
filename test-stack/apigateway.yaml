@@ -16,12 +16,12 @@ Resources:
       Description: !Ref APIDescription
       Name: !Ref APIName
 
-#  MockMethod:
-#    Type: 'AWS::ApiGateway::Method'
-#    Properties:
-#      RestApiId: !Ref APIGateway
-#      ResourceId: !GetAtt APIGateway.RootResourceId
-#      HttpMethod: GET
-#      AuthorizationType: NONE
-#      Integration:
-#        Type: MOCK
+  MockMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref APIGateway
+      ResourceId: !GetAtt APIGateway.RootResourceId
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK

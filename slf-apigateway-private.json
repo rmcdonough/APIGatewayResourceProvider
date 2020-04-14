@@ -33,8 +33,7 @@
     ],
     "createOnlyProperties": [
         "/properties/Name",
-        "/properties/Description",
-        "/properties/RootResourceId"
+        "/properties/Description"
     ],
     "primaryIdentifier": [
         "/properties/restApiId"
