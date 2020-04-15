@@ -1,7 +1,10 @@
 """Handlers for the API Gateway Resource Provider"""
 
 import logging
+import traceback
 from typing import Any, MutableMapping, Optional
+import botocore.exceptions
+
 
 from cloudformation_cli_python_lib import (  # pylint: disable=W0611,E0401
     Action,
@@ -27,38 +30,52 @@ class APIGateway():
     """Wrapper for calls to our API Gateway"""
     def __init__(self, session):
         self.client = session.client('apigateway')
-        # todo: make paginator safe
         self.apis = []
-        apis = self.client.get_rest_apis()
-        for api_id in apis['items']:
-            self.apis.append(api_id['name'])
+        paginator = self.client.get_paginator('get_rest_apis')
+        page_iterator = paginator.paginate()
+        for page in page_iterator:
+            for item in page['items']:
+                self.apis.append(item['name'])
+        logging.warning('APIGateway found these APIs: %s', str(self.apis))
 
     def create_api(self, name, description):
         """Create a new private API Gateway"""
         if name in self.apis:
-            # todo: this can be handled much cleaner with a better error message indicating a duplicate
-            raise NameError
-        create_response = self.client.create_rest_api(
-            name=name,
-            description=description,
-            endpointConfiguration={'types': ['PRIVATE']},
-            tags={'CreatedBy': TYPE_NAME}
-        )
-        logging.warning('Response from create_api: %s', str(create_response))
-        return {
-            'restApiId': create_response['id'],
-            'RootResourceId': self._get_root_resource_id(create_response['id'])
-        }
+            logging.critical('Request to create duplicate API name, returning None')
+            return None
+        try:
+            create_response = self.client.create_rest_api(
+                name=name,
+                description=description,
+                endpointConfiguration={'types': ['PRIVATE']},
+                tags={'CreatedBy': TYPE_NAME}
+            )
+            logging.warning('Response from create_api: %s', str(create_response))
+            return {
+                'restApiId': create_response['id'],
+                'RootResourceId': self._get_root_resource_id(create_response['id'])
+            }
+        except botocore.exceptions.ClientError:
+            logging.critical(traceback.format_exc())
+            return None
 
     def delete_api(self, name):
         """Deletes an API Gateway"""
-        response = self.client.delete_rest_api(restApiId=name)
-        logging.warning('Response from delete_api: %s', str(response))
-        return response
+        try:
+            response = self.client.delete_rest_api(restApiId=name)
+            logging.warning('Response from delete_api: %s', str(response))
+            return response
+        except botocore.exceptions.ClientError:
+            logging.critical(traceback.format_exc())
+            return None
 
     def get_api(self, rest_api_id):
         """Returns information about an API"""
-        api_response = self.client.get_rest_api(restApiId=rest_api_id)
+        try:
+            api_response = self.client.get_rest_api(restApiId=rest_api_id)
+        except botocore.exceptions.ClientError:
+            logging.critical(traceback.format_exc())
+            return None
         response = {
             'restApiId': api_response['id'],
             'Name': api_response['name'],
@@ -73,13 +90,17 @@ class APIGateway():
 
     def _get_root_resource_id(self, rest_api_id):
         """Returns the ID of the root resource (/)"""
-        # todo: make resource_response paginator safe
-        resource_response = self.client.get_resources(restApiId=rest_api_id)
-        logging.warning('Response from get_root_resource_id: %s', str(resource_response))
-        # for item in resource_response['items']:
-        #     if item['path'] == '/':
-        #         return item['id']
-        return [item['id'] for item in resource_response['items'] if item['path'] == "/"][0]
+        try:
+            resource_ids = []
+            paginator = self.client.get_paginator('get_resources')
+            page_iterator = paginator.paginate(restApiId=rest_api_id)
+            for page in page_iterator:
+                for item in page['items']:
+                    resource_ids.append(item)
+            return [item['id'] for item in resource_ids if item['path'] == "/"][0]
+        except botocore.exceptions.ClientError:
+            logging.critical(traceback.format_exc())
+            return None
 
 
 @resource.handler(Action.CREATE)
@@ -93,6 +114,11 @@ def create_handler(
     api = APIGateway(session)
     response = api.create_api(model.Name, model.Description)
     logging.warning('Response from create_api: %s', str(response))
+    if response is None:
+        return ProgressEvent(status=OperationStatus.FAILED,
+                             resourceModel=model,
+                             message='Duplicate API name or access denied error - ' + \
+                                     'check CloudWatch for detailed execution logs')
     model.restApiId = response['restApiId']
     model.RootResourceId = response['RootResourceId']
     logging.warning('Response model in create_handler: %s', str(model))
@@ -110,6 +136,11 @@ def delete_handler(
     api = APIGateway(session)
     response = api.delete_api(model.restApiId)
     logging.warning('Response from delete_handler: %s', str(response))
+    if response is None:
+        return ProgressEvent(status=OperationStatus.FAILED,
+                             resourceModel=model,
+                             message='Error during API deletion - check CloudWatch for ' + \
+                                     'detailed execution logs')
     return ProgressEvent(status=OperationStatus.SUCCESS, resourceModel=model, message='DeleteOK')
 
 
@@ -123,6 +154,11 @@ def read_handler(
     model = request.desiredResourceState
     api = APIGateway(session)
     response = api.get_api(model.restApiId)
+    if response is None:
+        return ProgressEvent(
+            status=OperationStatus.FAILED,
+            resourceModel=model,
+            message='Error reading from API - check CloudWatch for detailed output')
     model.message = response
     model.RootResourceId = response['RootResourceId']
     logging.warning('Resource model in read_handler: %s}', str(model))
