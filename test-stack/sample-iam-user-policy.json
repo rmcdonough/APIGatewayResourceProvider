@@ -1,0 +1,69 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:PUT",
+                "apigateway:PATCH",
+                "apigateway:DELETE",
+                "apigateway:GET"
+            ],
+            "Resource": "arn:aws:apigateway:us-west-2::/restapis/*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAllValues:StringLike": {
+                    "cloudformation:ResourceTypes": [
+                        "SLF::APIGateway::Private",
+                        "AWS::ApiGateway::Method"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateUploadBucket",
+                "cloudformation:ListExports",
+                "cloudformation:DetectStackDrift",
+                "cloudformation:UpdateStackInstances",
+                "cloudformation:ListStackInstances",
+                "cloudformation:UpdateTerminationProtection",
+                "cloudformation:DescribeStackResource",
+                "cloudformation:CreateStackInstances",
+                "cloudformation:DeleteChangeSet",
+                "cloudformation:DetectStackResourceDrift",
+                "cloudformation:EstimateTemplateCost",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:DescribeChangeSet",
+                "cloudformation:ExecuteChangeSet",
+                "cloudformation:ListStackResources",
+                "cloudformation:ListStacks",
+                "cloudformation:ListImports",
+                "cloudformation:DescribeStackInstance",
+                "cloudformation:DescribeStackResources",
+                "cloudformation:GetTemplateSummary",
+                "cloudformation:DescribeStacks",
+                "cloudformation:DescribeStackResourceDrifts",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate",
+                "cloudformation:DeleteStack",
+                "cloudformation:TagResource",
+                "cloudformation:UntagResource",
+                "cloudformation:ValidateTemplate",
+                "cloudformation:ListChangeSets"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

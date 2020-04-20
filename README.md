@@ -37,3 +37,20 @@ Failures can be passed back to CloudFormation by either raising an exception fro
 ## What's with the type hints?
 
 We hope they'll be useful for getting started quicker with an IDE that support type hints. Type hints are optional - if your code doesn't use them, it will still work.
+
+
+# mcdrich@ notes
+
+Deploying:
+
+```bash
+aws cloudformation create-stack --stack-name apigateway-test --template-body file://test-stack/apigateway.yaml --parameters ParameterKey=APIName,ParameterValue=APIGatewayTest ParameterKey=APIDescription,ParameterValue="API Gateway Test"
+```
+
+Deleting:
+
+```bash
+aws cloudformation delete-stack --stack-name apigateway-test
+```
+
+A sample policy has been placed into test-stack/sample-iam-user-policy.json as well
